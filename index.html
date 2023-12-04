@@ -3,30 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify Last Order</title>
+    <title>Shopify API Connection</title>
 </head>
 <body>
-    <div>
-        <h1>Last Order Number:.</h1>
-        <p id="orderNumber"></p>
-    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", async function () {
-            try {
-                const response = await fetch('https://muneebshahzad.github.io', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
+<div id="status">Connecting to Shopify API...</div>
 
-                const result = await response.json();
-                document.getElementById('orderNumber').innerText = result.lastOrderNumber;
-            } catch (error) {
-                console.error('Error:', error.message);
+<script>
+    // Replace 'YOUR_STOREFRONT_ACCESS_TOKEN' with your actual storefront access token
+    const storefrontAccessToken = 'YOUR_STOREFRONT_ACCESS_TOKEN';
+
+    // Shopify Storefront API endpoint (replace 'your-shop.myshopify.com' with your actual shop)
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
+
+    // GraphQL query to get shop information
+    const graphqlQuery = `
+        {
+            shop {
+                name
             }
-        });
-    </script>
+        }
+    `;
+
+    // Make a GraphQL POST request to Shopify API
+    fetch(shopifyApiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            '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': storefrontAccessToken,
+        },
+        body: JSON.stringify({ query: graphqlQuery }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Check if the response contains errors
+        if (data.errors) {
+            document.getElementById('status').innerText = 'Failed to connect to Shopify API';
+        } else {
+            const shopName = data.data.shop.name;
+            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
+        }
+    })
+    .catch(error => {
+        // Handle any network errors
+        document.getElementById('status').innerText = 'Failed to connect to Shopify API';
+    });
+</script>
+
 </body>
 </html>

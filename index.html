@@ -1,5 +1,6 @@
-<script>
-    const storefrontAccessToken = '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';
+
+     <script>
+       const storefrontAccessToken = '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';
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
     const graphqlQuery = `
         {
@@ -28,7 +29,12 @@
             throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
         } else {
             const shopName = data.data.shop.name;
-            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                statusElement.innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
+            } else {
+                console.error('Status element not found');
+            }
         }
     })
     .catch(error => {
@@ -43,3 +49,4 @@
         }
     });
 </script>
+

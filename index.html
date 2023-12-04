@@ -11,8 +11,8 @@
 <div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const shopifyApiUrl = '/.netlify/functions/shopifyApi';
-
+    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e'; // Replace with your actual access token
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2023-10/graphql.json';
     const graphqlQueryShop = `
         {
             shop {
@@ -53,6 +53,7 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
         },
         body: JSON.stringify({ query: graphqlQueryShop }),
     })
@@ -71,6 +72,7 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
         },
         body: JSON.stringify({ query: graphqlQueryOrders }),
     })

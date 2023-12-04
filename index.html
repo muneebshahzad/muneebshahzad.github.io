@@ -9,42 +9,40 @@
 
 <div id="status">Connecting to Shopify API...</div>
 
-     <script>
-       const storefrontAccessToken = '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';
+    <script>
+    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
+    const apiSecret = 'c25a5316dd408414932ef4c72c377c2b';  // Use your actual secret key or password
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
     const graphqlQuery = `
-      {
+        {
             shop {
                 name
             }
         }
     `;
 
-    console.log('Attempting to connect to Shopify API...');
+    // Create a base64-encoded string for authentication
+    const authString = btoa(`${apiKey}:${apiSecret}`);
 
     fetch(shopifyApiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            'Authorization': `Basic ${authString}`,  // Use Basic authentication
         },
         body: JSON.stringify({ query: graphqlQuery }),
     })
     .then(response => {
-        console.log('Response status:', response.status);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
-        console.log('GraphQL Response:', data);
-
         if (data.errors) {
             throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
         } else {
             const shopName = data.data.shop.name;
-            console.log('Connected to Shopify API. Shop Name:', shopName);
             const statusElement = document.getElementById('status');
             if (statusElement) {
                 statusElement.innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
@@ -59,12 +57,13 @@
         // Additional error handling to avoid null reference
         const statusElement = document.getElementById('status');
         if (statusElement) {
-            statusElement.innerText = 'Failed to connect to Shopify APIx';
+            statusElement.innerText = 'Failed to connect to Shopify API';
         } else {
             console.error('Status element not found');
         }
     });
 </script>
+
 
 
 </body>

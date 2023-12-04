@@ -10,8 +10,9 @@
 <div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
+    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
+    const apiSecret = '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';  // Use your actual secret key or password
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/admin/api/2023-10/graphql.json';
     const graphqlQueryShop = `
         {
             shop {
@@ -52,7 +53,7 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            'Authorization': `Basic ${btoa(`${apiKey}:${apiSecret}`)}`,  // Use Basic authentication
         },
         body: JSON.stringify({ query: graphqlQueryShop }),
     })
@@ -71,7 +72,7 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            'Authorization': `Basic ${btoa(`${apiKey}:${apiSecret}`)}`,  // Use Basic authentication
         },
         body: JSON.stringify({ query: graphqlQueryOrders }),
     })

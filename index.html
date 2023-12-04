@@ -7,11 +7,11 @@
 </head>
 <body>
 
-<div id="status">Connecting to Shopify API...</div>
+<div id="status">Connecting to Shopify API.</div>
 
 <script>
     // Replace 'YOUR_STOREFRONT_ACCESS_TOKEN' with your actual storefront access token
-    const storefrontAccessToken = 'YOUR_STOREFRONT_ACCESS_TOKEN';
+    const storefrontAccessToken = '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';
 
     // Shopify Storefront API endpoint (replace 'your-shop.myshopify.com' with your actual shop)
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
@@ -30,7 +30,7 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            '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': storefrontAccessToken,
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
         },
         body: JSON.stringify({ query: graphqlQuery }),
     })

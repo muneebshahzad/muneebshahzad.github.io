@@ -1,4 +1,14 @@
-<script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify API Connection</title>
+</head>
+<body>
+
+<div id="status">Connecting to Shopify API...</div>
+
+    <script>
     const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
     const graphqlQuery = `
@@ -36,3 +46,5 @@
         document.getElementById('status').innerText = 'Failed to connect to Shopify API';
     });
 </script>
+</body>
+</html>

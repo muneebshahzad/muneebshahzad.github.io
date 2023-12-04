@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify API Connection</title>
+    <title>Shopify API Connection...</title>
 </head>
 <body>
 
@@ -23,7 +23,13 @@
         }).format(amount);
     }
 
+    // Function to update status
+    function updateStatus(message) {
+        document.getElementById('status').innerText = message;
+    }
+
     // Make a request to get the last 5 orders
+    updateStatus('Connecting to Shopify API...');
     fetch(shopifyApiUrl, {
         method: 'GET',
         headers: {
@@ -32,7 +38,12 @@
             // Add any additional headers if required
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         const orderListElement = document.getElementById('orderList');
         if (data.orders) {
@@ -49,16 +60,17 @@
             }).join('');
 
             orderListElement.innerHTML = `<h2>Last 5 Orders</h2>${ordersHtml}`;
+            updateStatus('Orders fetched successfully!');
         } else {
             orderListElement.innerHTML = 'No orders found.';
+            updateStatus('No orders found.');
         }
     })
     .catch(error => {
         console.error('Error:', error.message);
         const orderListElement = document.getElementById('orderList');
-        if (orderListElement) {
-            orderListElement.innerHTML = 'Failed to fetch orders';
-        }
+        orderListElement.innerHTML = 'Failed to fetch orders';
+        updateStatus('Failed to fetch orders.');
     });
 </script>
 </body>

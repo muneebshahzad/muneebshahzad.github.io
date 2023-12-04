@@ -13,12 +13,14 @@
        const storefrontAccessToken = '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';
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
     const graphqlQuery = `
-        {
+      {
             shop {
                 name
             }
         }
     `;
+
+    console.log('Attempting to connect to Shopify API...');
 
     fetch(shopifyApiUrl, {
         method: 'POST',
@@ -29,16 +31,20 @@
         body: JSON.stringify({ query: graphqlQuery }),
     })
     .then(response => {
+        console.log('Response status:', response.status);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         return response.json();
     })
     .then(data => {
+        console.log('GraphQL Response:', data);
+
         if (data.errors) {
             throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
         } else {
             const shopName = data.data.shop.name;
+            console.log('Connected to Shopify API. Shop Name:', shopName);
             const statusElement = document.getElementById('status');
             if (statusElement) {
                 statusElement.innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;

@@ -7,48 +7,103 @@
 <body>
 
 <div id="status">Connecting to Shopify API...</div>
-<div id="orderList"></div>
+<div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
-    const apiPassword = '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';  // Use your actual API password
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/admin/api/2023-10/orders.json?status=any&limit=5';
+    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
+    const graphqlQueryShop = `
+        {
+            shop {
+                name
+            }
+        }
+    `;
 
+    const graphqlQueryOrders = `
+        {
+            orders(last: 5) {
+                edges {
+                    node {
+                        id
+                        name
+                        totalPriceSet {
+                            shopMoney {
+                                amount
+                                currencyCode
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    // Function to format currency
+    function formatCurrency(amount, currencyCode) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currencyCode,
+        }).format(amount);
+    }
+
+    // Make a request to get shop name
     fetch(shopifyApiUrl, {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(`${apiKey}:${apiPassword}`)}`,  // Use Basic authentication
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
         },
+        body: JSON.stringify({ query: graphqlQueryShop }),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
-        const orders = data.orders;
-        const orderListElement = document.getElementById('orderList');
-        orderListElement.innerHTML = '<h2>Last 5 Orders:</h2>';
-        
-        orders.forEach(order => {
-            const orderDetails = `
-                <p>
-                    Order ID: ${order.id}<br>
-                    Order Name: ${order.name}<br>
-                    Total Price: ${order.total_price}<br>
-                    Created At: ${order.created_at}
-                </p>
-            `;
-            orderListElement.innerHTML += orderDetails;
-        });
-
-        document.getElementById('status').innerText = `Succeed! Connected to Shopify API.`;
+        const shopName = data.data.shop.name;
+        document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
     })
     .catch(error => {
         console.error('Error:', error.message);
         document.getElementById('status').innerText = 'Failed to connect to Shopify API';
+    });
+
+    // Make a request to get the last 5 orders
+    fetch(shopifyApiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+        },
+        body: JSON.stringify({ query: graphqlQueryOrders }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.errors) {
+            throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
+        } else {
+            const orderListElement = document.getElementById('orderList');
+            if (orderListElement) {
+                const orders = data.data.orders.edges;
+                const ordersHtml = orders.map(order => {
+                    return `
+                        <div>
+                            <strong>Order ID:</strong> ${order.node.id}<br>
+                            <strong>Name:</strong> ${order.node.name}<br>
+                            <strong>Total Price:</strong> ${formatCurrency(order.node.totalPriceSet.shopMoney.amount, order.node.totalPriceSet.shopMoney.currencyCode)}<br>
+                            <br>
+                        </div>
+                    `;
+                }).join('');
+
+                orderListElement.innerHTML = `<h2>Last 5 Orders</h2>${ordersHtml}`;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error.message);
+        const orderListElement = document.getElementById('orderList');
+        if (orderListElement) {
+            orderListElement.innerHTML = 'Failed to fetch orders';
+        }
     });
 </script>
 </body>

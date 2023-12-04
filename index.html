@@ -6,42 +6,20 @@
 </head>
 <body>
 
-<div id="status">..Connecting to Shopify API...</div>
+<div id="status">Connecting to Shopify API...</div>
 <div id="orderList"></div>
 
 <script>
-    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
-    const graphqlQuery = `
-        {
-            shop {
-                name
-            }
-            customerOrders(last: 5) {
-                edges {
-                    node {
-                        id
-                        name
-                        totalPriceSet {
-                            shopMoney {
-                                amount
-                                currencyCode
-                            }
-                        }
-                        createdAt
-                    }
-                }
-            }
-        }
-    `;
+    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
+    const apiPassword = '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';  // Use your actual API password
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/admin/api/2023-10/orders.json?status=any&limit=5';
 
     fetch(shopifyApiUrl, {
-        method: 'POST',
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            'Authorization': `Basic ${btoa(`${apiKey}:${apiPassword}`)}`,  // Use Basic authentication
         },
-        body: JSON.stringify({ query: graphqlQuery }),
     })
     .then(response => {
         if (!response.ok) {
@@ -50,29 +28,23 @@
         return response.json();
     })
     .then(data => {
-        if (data.errors) {
-            throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
-        } else {
-            const shopName = data.data.shop.name;
-            const orderList = data.data.customerOrders.edges;
-            
-            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
-            
-            // Display the last 5 orders
-            const orderListElement = document.getElementById('orderList');
-            orderListElement.innerHTML = '<h2>Last 5 Orders:</h2>';
-            orderList.forEach(order => {
-                const orderDetails = `
-                    <p>
-                        Order ID: ${order.node.id}<br>
-                        Order Name: ${order.node.name}<br>
-                        Total Price: ${order.node.totalPriceSet.shopMoney.amount} ${order.node.totalPriceSet.shopMoney.currencyCode}<br>
-                        Created At: ${order.node.createdAt}
-                    </p>
-                `;
-                orderListElement.innerHTML += orderDetails;
-            });
-        }
+        const orders = data.orders;
+        const orderListElement = document.getElementById('orderList');
+        orderListElement.innerHTML = '<h2>Last 5 Orders:</h2>';
+        
+        orders.forEach(order => {
+            const orderDetails = `
+                <p>
+                    Order ID: ${order.id}<br>
+                    Order Name: ${order.name}<br>
+                    Total Price: ${order.total_price}<br>
+                    Created At: ${order.created_at}
+                </p>
+            `;
+            orderListElement.innerHTML += orderDetails;
+        });
+
+        document.getElementById('status').innerText = `Succeed! Connected to Shopify API.`;
     })
     .catch(error => {
         console.error('Error:', error.message);

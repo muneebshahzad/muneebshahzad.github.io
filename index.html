@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,27 +7,39 @@
 <body>
 
 <div id="status">Connecting to Shopify API...</div>
+<div id="orderList"></div>
 
-    <script>
-    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
-    const apiSecret = 'c25a5316dd408414932ef4c72c377c2b';  // Use your actual secret key or password
+<script>
+    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
     const graphqlQuery = `
         {
             shop {
                 name
             }
+            orders(last: 5) {
+                edges {
+                    node {
+                        id
+                        name
+                        totalPriceSet {
+                            shopMoney {
+                                amount
+                                currencyCode
+                            }
+                        }
+                        createdAt
+                    }
+                }
+            }
         }
     `;
-
-    // Create a base64-encoded string for authentication
-    const authString = btoa(`${apiKey}:${apiSecret}`);
 
     fetch(shopifyApiUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${authString}`,  // Use Basic authentication
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
         },
         body: JSON.stringify({ query: graphqlQuery }),
     })
@@ -43,28 +54,30 @@
             throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
         } else {
             const shopName = data.data.shop.name;
-            const statusElement = document.getElementById('status');
-            if (statusElement) {
-                statusElement.innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
-            } else {
-                console.error('Status element not found');
-            }
+            const orderList = data.data.orders.edges;
+            
+            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
+            
+            // Display the last 5 orders
+            const orderListElement = document.getElementById('orderList');
+            orderListElement.innerHTML = '<h2>Last 5 Orders:</h2>';
+            orderList.forEach(order => {
+                const orderDetails = `
+                    <p>
+                        Order ID: ${order.node.id}<br>
+                        Order Name: ${order.node.name}<br>
+                        Total Price: ${order.node.totalPriceSet.shopMoney.amount} ${order.node.totalPriceSet.shopMoney.currencyCode}<br>
+                        Created At: ${order.node.createdAt}
+                    </p>
+                `;
+                orderListElement.innerHTML += orderDetails;
+            });
         }
     })
     .catch(error => {
         console.error('Error:', error.message);
-
-        // Additional error handling to avoid null reference
-        const statusElement = document.getElementById('status');
-        if (statusElement) {
-            statusElement.innerText = 'Failed to connect to Shopify API';
-        } else {
-            console.error('Status element not found');
-        }
+        document.getElementById('status').innerText = 'Failed to connect to Shopify API';
     });
 </script>
-
-
-
 </body>
 </html>

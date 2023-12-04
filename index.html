@@ -11,7 +11,7 @@
 <div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e'; // Replace with your actual access token
+    const storefrontAccessToken = 'YOUR_STOREFRONT_ACCESS_TOKEN'; // Replace with your actual access token
     const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2023-10/graphql.json';
     const graphqlQueryShop = `
         {
@@ -23,13 +23,13 @@
 
     const graphqlQueryOrders = `
         {
-            orders(last: 5) {
-                edges {
-                    node {
-                        id
-                        name
-                        totalPriceSet {
-                            shopMoney {
+            customer(customerAccessToken: "${storefrontAccessToken}") {
+                orders(last: 5) {
+                    edges {
+                        node {
+                            id
+                            name
+                            totalPriceV2 {
                                 amount
                                 currencyCode
                             }
@@ -83,13 +83,13 @@
         } else {
             const orderListElement = document.getElementById('orderList');
             if (orderListElement) {
-                const orders = data.data.orders.edges;
+                const orders = data.data.customer.orders.edges;
                 const ordersHtml = orders.map(order => {
                     return `
                         <div>
                             <strong>Order ID:</strong> ${order.node.id}<br>
                             <strong>Name:</strong> ${order.node.name}<br>
-                            <strong>Total Price:</strong> ${formatCurrency(order.node.totalPriceSet.shopMoney.amount, order.node.totalPriceSet.shopMoney.currencyCode)}<br>
+                            <strong>Total Price:</strong> ${formatCurrency(order.node.totalPriceV2.amount, order.node.totalPriceV2.currencyCode)}<br>
                             <br>
                         </div>
                     `;
@@ -103,7 +103,7 @@
         console.error('Error:', error.message);
         const orderListElement = document.getElementById('orderList');
         if (orderListElement) {
-            orderListElement.innerHTML = 'Failed to fetch ordersx';
+            orderListElement.innerHTML = 'Failed to fetch orders';
         }
     });
 </script>

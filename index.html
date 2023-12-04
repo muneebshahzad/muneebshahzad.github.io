@@ -11,34 +11,9 @@
 <div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e'; // Replace with your actual access token
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2023-10/graphql.json';
-    const graphqlQueryShop = `
-        {
-            shop {
-                name
-            }
-        }
-    `;
-
-    const graphqlQueryOrders = `
-        {
-            customer(customerAccessToken: "${storefrontAccessToken}") {
-                orders(last: 5) {
-                    edges {
-                        node {
-                            id
-                            name
-                            totalPriceV2 {
-                                amount
-                                currencyCode
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    `;
+    const shopifyApiUrl = 'http://alkaramat.myshopify.com/admin/api/2023-10/orders.json?status=any';
+    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
+    const apiSecret = 'c25a5316dd408414932ef4c72c377c2b';
 
     // Function to format currency
     function formatCurrency(amount, currencyCode) {
@@ -48,55 +23,34 @@
         }).format(amount);
     }
 
-    // Make a request to get shop name
-    fetch(shopifyApiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
-        },
-        body: JSON.stringify({ query: graphqlQueryShop }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        const shopName = data.data.shop.name;
-        document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
-    })
-    .catch(error => {
-        console.error('Error:', error.message);
-        document.getElementById('status').innerText = 'Failed to connect to Shopify API';
-    });
-
     // Make a request to get the last 5 orders
     fetch(shopifyApiUrl, {
-        method: 'POST',
+        method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            'X-Shopify-Access-Token': `${apiKey}:${apiSecret}`,
+            // Add any additional headers if required
         },
-        body: JSON.stringify({ query: graphqlQueryOrders }),
     })
     .then(response => response.json())
     .then(data => {
-        if (data.errors) {
-            throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
-        } else {
-            const orderListElement = document.getElementById('orderList');
-            if (orderListElement) {
-                const orders = data.data.customer.orders.edges;
-                const ordersHtml = orders.map(order => {
-                    return `
-                        <div>
-                            <strong>Order ID:</strong> ${order.node.id}<br>
-                            <strong>Name:</strong> ${order.node.name}<br>
-                            <strong>Total Price:</strong> ${formatCurrency(order.node.totalPriceV2.amount, order.node.totalPriceV2.currencyCode)}<br>
-                            <br>
-                        </div>
-                    `;
-                }).join('');
+        const orderListElement = document.getElementById('orderList');
+        if (data.orders) {
+            const orders = data.orders;
+            const ordersHtml = orders.map(order => {
+                return `
+                    <div>
+                        <strong>Order ID:</strong> ${order.id}<br>
+                        <strong>Name:</strong> ${order.name}<br>
+                        <strong>Total Price:</strong> ${formatCurrency(order.current_total_price, order.currency)}<br>
+                        <br>
+                    </div>
+                `;
+            }).join('');
 
-                orderListElement.innerHTML = `<h2>Last 5 Orders</h2>${ordersHtml}`;
-            }
+            orderListElement.innerHTML = `<h2>Last 5 Orders</h2>${ordersHtml}`;
+        } else {
+            orderListElement.innerHTML = 'No orders found.';
         }
     })
     .catch(error => {

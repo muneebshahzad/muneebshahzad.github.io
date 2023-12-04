@@ -1,0 +1,38 @@
+<script>
+    const storefrontAccessToken = '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';
+    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
+    const graphqlQuery = `
+        {
+            shop {
+                name
+            }
+        }
+    `;
+
+    fetch(shopifyApiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+        },
+        body: JSON.stringify({ query: graphqlQuery }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.errors) {
+            throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
+        } else {
+            const shopName = data.data.shop.name;
+            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error.message);
+        document.getElementById('status').innerText = 'Failed to connect to Shopify API';
+    });
+</script>

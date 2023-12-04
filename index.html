@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<div id="status">Connecting to Shopify API...</div>
+<div id="status">..Connecting to Shopify API...</div>
 <div id="orderList"></div>
 
 <script>
@@ -17,7 +17,7 @@
             shop {
                 name
             }
-            orders(last: 5) {
+            customerOrders(last: 5) {
                 edges {
                     node {
                         id
@@ -54,7 +54,7 @@
             throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
         } else {
             const shopName = data.data.shop.name;
-            const orderList = data.data.orders.edges;
+            const orderList = data.data.customerOrders.edges;
             
             document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
             

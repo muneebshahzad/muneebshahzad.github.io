@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,9 +11,8 @@
 <div id="orderList">Loading last 5 orders...</div>
 
 <script>
-    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
-    const apiSecret = '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';  // Use your actual secret key or password
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/admin/api/2023-10/graphql.json';
+    const shopifyApiUrl = '/.netlify/functions/shopifyApi';
+
     const graphqlQueryShop = `
         {
             shop {
@@ -53,7 +53,6 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(`${apiKey}:${apiSecret}`)}`,  // Use Basic authentication
         },
         body: JSON.stringify({ query: graphqlQueryShop }),
     })
@@ -72,7 +71,6 @@
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${btoa(`${apiKey}:${apiSecret}`)}`,  // Use Basic authentication
         },
         body: JSON.stringify({ query: graphqlQueryOrders }),
     })
@@ -103,7 +101,7 @@
         console.error('Error:', error.message);
         const orderListElement = document.getElementById('orderList');
         if (orderListElement) {
-            orderListElement.innerHTML = 'Failed to fetch orders..';
+            orderListElement.innerHTML = 'Failed to fetch orders';
         }
     });
 </script>

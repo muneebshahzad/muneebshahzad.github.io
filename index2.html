@@ -1,50 +1,35 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify API Connection</title>
+    <title>Authentication Token Processing</title>
 </head>
 <body>
-
-<div id="status">Connecting to Shopify API...</div>
+    <h1>Authentication Token Processing</h1>
+    <p>This webpage will process the authentication token received from Daraz.</p>
 
     <script>
-    const storefrontAccessToken = 'f4dd6338e204a10b04e1f0fc418b957e';
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/api/2022-01/graphql.json';
-    const graphqlQuery = `
-        {
-            shop {
-                name
+        // Function to extract the authentication token from the URL query parameters
+        function getAuthTokenFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('code');
+        }
+
+        // Function to display the authentication token on the webpage
+        function displayAuthToken() {
+            const authToken = getAuthTokenFromURL();
+            if (authToken) {
+                document.getElementById('authToken').innerText = authToken;
+            } else {
+                document.getElementById('authToken').innerText = 'Authentication token not found in URL.';
             }
         }
-    `;
 
-    fetch(shopifyApiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
-        },
-        body: JSON.stringify({ query: graphqlQuery }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.errors) {
-            throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
-        } else {
-            const shopName = data.data.shop.name;
-            document.getElementById('status').innerText = `Succeed! Connected to Shopify API. Shop Name: ${shopName}`;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error.message);
-        document.getElementById('status').innerText = 'Failed to connect to Shopify API';
-    });
-</script>
+        // Call the function to display the authentication token when the page loads
+        window.onload = displayAuthToken;
+    </script>
+
+    <p>Authentication Token: <span id="authToken"></span></p>
 </body>
 </html>

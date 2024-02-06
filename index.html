@@ -3,43 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication Token Processing</title>
+    <title>Categories</title>
 </head>
 <body>
-    <h1>Authentication Token Processing</h1>
-    <p>This webpage will process the authentication token received from Daraz.</p>
+    <h1>Categories</h1>
+    <p>Loading categories...</p>
 
     <script>
-        // Function to extract the authentication token from the URL query parameters
-        function getAuthTokenFromURL() {
+        // Function to extract the authentication code from the URL query parameters
+        function getAuthCodeFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('code');
         }
 
-        // Function to display the authentication token on the webpage
-        function displayAuthToken() {
-            const authToken = getAuthTokenFromURL();
-            if (authToken) {
-                document.getElementById('authToken').innerText = authToken;
-                // Perform a GET request using the authentication code
-                fetch(`/api/resource?code=${authToken}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Response from API:', data);
-                        // Display the response on the webpage
-                        document.getElementById('apiResponse').innerText = JSON.stringify(data);
-                    })
-                    .catch(error => console.error('Error:', error));
-            } else {
-                document.getElementById('authToken').innerText = 'Authentication token not found in URL.';
-            }
+        // Function to fetch categories using the authentication code
+        function fetchCategories(authCode) {
+            const url = 'https://api.daraz.pk/category/tree/get';
+            const appKey = '501554';
+            const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
+
+            // Create a request payload with the authentication code
+            const payload = {
+                code: authCode,
+                appKey: appKey,
+                appSecret: appSecret
+            };
+
+            // Make a POST request to fetch categories
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display categories on the webpage
+                displayCategories(data.data);
+            })
+            .catch(error => console.error('Error fetching categories:', error));
         }
 
-        // Call the function to display the authentication token when the page loads
-        window.onload = displayAuthToken;
-    </script>
+        // Function to display categories on the webpage
+        function displayCategories(categories) {
+            const categoryList = document.createElement('ul');
 
-    <p>Authentication Token: <span id="authToken"></span></p>
-    <p>API Response: <span id="apiResponse"></span></p>
+            categories.forEach(category => {
+                const categoryItem = document.createElement('li');
+                categoryItem.textContent = category.name;
+                categoryList.appendChild(categoryItem);
+
+                // Check if category has children and recursively display them
+                if (category.children && category.children.length > 0) {
+                    const childrenList = document.createElement('ul');
+                    category.children.forEach(child => {
+                        const childItem = document.createElement('li');
+                        childItem.textContent = child.name;
+                        childrenList.appendChild(childItem);
+                    });
+                    categoryItem.appendChild(childrenList);
+                }
+            });
+
+            // Replace loading message with category list
+            const loadingMessage = document.querySelector('p');
+            loadingMessage.replaceWith(categoryList);
+        }
+
+        // Main function to fetch categories when the page loads
+        window.onload = function() {
+            const authCode = getAuthCodeFromURL();
+            if (authCode) {
+                fetchCategories(authCode);
+            } else {
+                console.error('Authentication code not found in URL.');
+            }
+        };
+    </script>
 </body>
 </html>

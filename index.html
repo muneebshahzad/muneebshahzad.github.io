@@ -3,75 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify API Connection...</title>
+    <title>Authentication Token Processing</title>
 </head>
 <body>
+    <h1>Authentication Token Processing</h1>
+    <p>This webpage will process the authentication token received from Daraz.</p>
 
-<div id="status">Connecting to Shopify API...</div>
-<div id="orderList">Loading last 5 orders...</div>
-
-<script>
-    const shopifyApiUrl = 'https://alkaramat.myshopify.com/admin/api/2023-10/orders.json?status=any';
-    const apiKey = 'a8e7646c131a57f30477a97d2cdde5bb';
-    const apiSecret = 'c25a5316dd408414932ef4c72c377c2b';
-
-    // Function to format currency
-    function formatCurrency(amount, currencyCode) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: currencyCode,
-        }).format(amount);
-    }
-
-    // Function to update status
-    function updateStatus(message) {
-        document.getElementById('status').innerText = message;
-    }
-
-    // Make a request to get the last 5 orders
-    updateStatus('Connecting to Shopify API...');
-    fetch(shopifyApiUrl, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Access-Token': apiSecret,
-            // Add any additional headers if required
-        },
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+    <script>
+        // Function to extract the authentication token from the URL query parameters
+        function getAuthTokenFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('code');
         }
-        return response.json();
-    })
-    .then(data => {
-        const orderListElement = document.getElementById('orderList');
-        if (data.orders) {
-            const orders = data.orders;
-            const ordersHtml = orders.map(order => {
-                return `
-                    <div>
-                        <strong>Order ID:</strong> ${order.id}<br>
-                        <strong>Name:</strong> ${order.name}<br>
-                        <strong>Total Price:</strong> ${formatCurrency(order.current_total_price, order.currency)}<br>
-                        <br>
-                    </div>
-                `;
-            }).join('');
 
-            orderListElement.innerHTML = `<h2>Last 5 Orders</h2>${ordersHtml}`;
-            updateStatus('Orders fetched successfully!');
-        } else {
-            orderListElement.innerHTML = 'No orders found.';
-            updateStatus('No orders found.');
+        // Function to display the authentication token on the webpage
+        function displayAuthToken() {
+            const authToken = getAuthTokenFromURL();
+            if (authToken) {
+                document.getElementById('authToken').innerText = authToken;
+            } else {
+                document.getElementById('authToken').innerText = 'Authentication token not found in URL.';
+            }
         }
-    })
-    .catch(error => {
-        console.error('Error:', error.message);
-        const orderListElement = document.getElementById('orderList');
-        orderListElement.innerHTML = 'Failed to fetch orders';
-        updateStatus('Failed to fetch orders.');
-    });
-</script>
+
+        // Call the function to display the authentication token when the page loads
+        window.onload = displayAuthToken;
+    </script>
+
+    <p>Authentication Token: <span id="authToken"></span></p>
 </body>
 </html>

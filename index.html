@@ -18,7 +18,8 @@
 
         // Function to fetch categories using the authentication code
         function fetchCategories(authCode) {
-            const url = 'https://api.daraz.pk/category/tree/get';
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy URL
+            const apiUrl = 'https://api.daraz.pk/category/tree/get';
             const appKey = '501554';
             const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
 
@@ -29,8 +30,8 @@
                 appSecret: appSecret
             };
 
-            // Make a POST request to fetch categories
-            fetch(url, {
+            // Make a POST request to fetch categories through the CORS proxy
+            fetch(proxyUrl + apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catddegories</title>
+    <title>Categories</title>
 </head>
 <body>
-    <h1>Categories</h1>
+    <h1>Categories!</h1>
     <p>Loading categories...</p>
 
     <script>
@@ -17,34 +17,40 @@
         }
 
         // Function to fetch categories using the authentication code
-        function fetchCategories(authCode) {
-            const proxyUrl = 'https://api.allorigins.win/raw?url='; // CORS proxy URL
-            const apiUrl = 'https://api.daraz.pk/category/tree/get';
-            const appKey = '501554';
-            const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
+       // Function to fetch categories using the authentication code
+function fetchCategories(authCode) {
+    const proxyUrl = 'https://api.allorigins.win/raw?url='; // CORS proxy URL
+    const apiUrl = 'https://api.daraz.pk/category/tree/get';
+    const appKey = '501554';
+    const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
 
-            // Create a request payload with the authentication code
-            const payload = {
-                code: authCode,
-                appKey: appKey,
-                appSecret: appSecret
-            };
+    // Create a request payload with the authentication code
+    const payload = {
+        code: authCode,
+        appKey: appKey,
+        appSecret: appSecret
+    };
 
-            // Make a POST request to fetch categories through the CORS proxy
-            fetch(proxyUrl + encodeURIComponent(apiUrl), {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Display categories on the webpage
-                displayCategories(data.data);
-            })
-            .catch(error => console.error('Error fetching categories:', error));
+    // Make a POST request to fetch categories through the CORS proxy
+    fetch(proxyUrl + encodeURIComponent(apiUrl), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch categories: ' + response.statusText);
         }
+        return response.json();
+    })
+    .then(data => {
+        // Display categories on the webpage
+        displayCategories(data.data);
+    })
+    .catch(error => console.error('Error fetching categories:', error));
+}
 
         // Function to display categories on the webpage
         function displayCategories(categories) {

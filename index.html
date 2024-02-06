@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>Catddegories</title>
 </head>
 <body>
     <h1>Categories</h1>
@@ -18,7 +18,7 @@
 
         // Function to fetch categories using the authentication code
         function fetchCategories(authCode) {
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // CORS proxy URL
+            const proxyUrl = 'https://api.allorigins.win/raw?url='; // CORS proxy URL
             const apiUrl = 'https://api.daraz.pk/category/tree/get';
             const appKey = '501554';
             const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
@@ -31,7 +31,7 @@
             };
 
             // Make a POST request to fetch categories through the CORS proxy
-            fetch(proxyUrl + apiUrl, {
+            fetch(proxyUrl + encodeURIComponent(apiUrl), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

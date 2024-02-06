@@ -3,90 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>Get Access Token</title>
 </head>
 <body>
-    <h1>Categories!</h1>
-    <p>Loading categories...</p>
+    <button id="getTokenButton">Get Access Token</button>
 
     <script>
-        // Function to extract the authentication code from the URL query parameters
-        function getAuthCodeFromURL() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('code');
-        }
-
-        // Function to fetch categories using the authentication code
-       // Function to fetch categories using the authentication code
-function fetchCategories(authCode) {
-    const proxyUrl = 'https://api.allorigins.win/raw?url='; // CORS proxy URL
-    const apiUrl = 'https://api.daraz.pk/category/tree/get';
-    const appKey = '501554';
-    const appSecret = 'nrP3XFN7ChZL53cXyVED1yj4iGZZtlcD';
-
-    // Create a request payload with the authentication code
-    const payload = {
-        code: authCode,
-        appKey: appKey,
-        appSecret: appSecret
-    };
-
-    // Make a POST request to fetch categories through the CORS proxy
-    fetch(proxyUrl + encodeURIComponent(apiUrl), {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch categories: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Display categories on the webpage
-        displayCategories(data.data);
-    })
-    .catch(error => console.error('Error fetching categories:', error));
-}
-
-        // Function to display categories on the webpage
-        function displayCategories(categories) {
-            const categoryList = document.createElement('ul');
-
-            categories.forEach(category => {
-                const categoryItem = document.createElement('li');
-                categoryItem.textContent = category.name;
-                categoryList.appendChild(categoryItem);
-
-                // Check if category has children and recursively display them
-                if (category.children && category.children.length > 0) {
-                    const childrenList = document.createElement('ul');
-                    category.children.forEach(child => {
-                        const childItem = document.createElement('li');
-                        childItem.textContent = child.name;
-                        childrenList.appendChild(childItem);
-                    });
-                    categoryItem.appendChild(childrenList);
+        document.getElementById("getTokenButton").addEventListener("click", function() {
+            // Make AJAX request to backend server
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://tickbags.onrender.com/get-access-token", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Access token retrieved successfully
+                    var accessToken = JSON.parse(xhr.responseText).access_token;
+                    alert("Access Token: " + accessToken);
                 }
-            });
-
-            // Replace loading message with category list
-            const loadingMessage = document.querySelector('p');
-            loadingMessage.replaceWith(categoryList);
-        }
-
-        // Main function to fetch categories when the page loads
-        window.onload = function() {
-            const authCode = getAuthCodeFromURL();
-            if (authCode) {
-                fetchCategories(authCode);
-            } else {
-                console.error('Authentication code not found in URL.');
-            }
-        };
+            };
+            xhr.send();
+        });
     </script>
 </body>
 </html>
